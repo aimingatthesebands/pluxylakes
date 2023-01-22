@@ -166,7 +166,7 @@ async def activeTask(type, platform, link, id, addInfo):
 
 Tarea: <b>{type.lower()}</b>
 Plataforma:  <b>{platform}</b>
-Recompensa:  <b>{data[12]}$ + {data[11]} EXP + [Tu bono de nivel es : {data[13]} USD]</b>
+Recompensa:  <b>{data[12]} USD + {data[11]} EXP + [Tu bono de nivel es : {data[13]} USD]</b>
 Enlace:  {link}
 Informacion adicional: <b> {addInfo} </b>
 
@@ -463,7 +463,7 @@ async def buyPackApprove(id, stateData):
 
 Quiere comprar un paquete. 
 Tipo de paquete: <b>{stateData['taskCount']} tareas </b>
-Precio del paquete: <b>{stateData['packPrice']}$</b>
+Precio del paquete: <b>{stateData['packPrice']}USD</b>
 
 Saldo: <b>{round(dbdata[6], 3)} USD</b>
 Saldo de referencia: <b>{dbdata[7]} USD</b>
@@ -503,7 +503,7 @@ async def processNewStartCommand(msg: types.Message):
         if len(msg.text.split(" ")) == 2: # esli est' Ref priglasivhiy
             ref = msg.text.split(" ")[1]
             await db.regUser(msg.chat.id, "inProcess", str(datetime.datetime.now()).split(".")[0], msg.from_user.first_name, ref, msg.from_user.username)
-            await msg.bot.send_message(ref, reply_markup=kb.onNewRefNotification(), disable_notification=True, text=f"{data['txt']['newRefNotification']} <code> @{msg.from_user.username if msg.from_user.username is not None else msg.chat.id} </code>")
+            await msg.bot.send_message(ref, reply_markup=kb.onNewRefNotification(), disable_notification=True, text=f"{data['txt']['newRefNotification']} <code> {'@' + msg.from_user.username if msg.from_user.username is not None else msg.chat.id} </code>")
         else: #rega bez priglosa
             await db.regUser(msg.chat.id, "inProcess", str(datetime.datetime.now()).split(".")[0],
                              msg.from_user.first_name, 0, msg.from_user.username)
@@ -904,7 +904,7 @@ async def replenishSecondStage(msg: types.Message, state: FSMContext):
                                             vendor=f"{data['txt']['USDTTRC'] if vendor == 'usdttrc' else data['txt']['USDTERC'] if vendor == 'usdterc' else data['txt']['BTC'] if vendor == 'btc' else data['txt']['ETH'] if vendor == 'eth' else f'Vendor: {vendor}'}",
                                             dt=str(datetime.datetime.now()).split(".")[0])
         else:
-            await msg.bot.send_message(msg.chat.id, reply_markup=kb.justMainMenu(), disable_notification=True, text=f"{data['txt']['lowerThanMinReplenishSum']} <b> {data['prefs']['minReplenishSum']}$ </b>")
+            await msg.bot.send_message(msg.chat.id, reply_markup=kb.justMainMenu(), disable_notification=True, text=f"{data['txt']['lowerThanMinReplenishSum']} <b> {data['prefs']['minReplenishSum']} USD </b>")
             await States.replenishSumInputAwaiting.set()
 
 @dp.callback_query_handler(text=['buy_more_tasks', 'choose_another_pack'], state=[States.menu, States.packTaskChosen])
