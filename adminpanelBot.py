@@ -170,5 +170,9 @@ async def closeMsg(call: types.CallbackQuery, state: FSMContext):
         cid = call.message.chat.id
         await call.bot.delete_message(cid, call.message.message_id)
     except: pass
+    
+@admindp.message_handler(commands=['stats'])
+async def cmdstat(msg: types.Message):
+    await msg.bot.send_message(msg.chat.id, text=f'Количество юзеров: <b> {await db.getAllUsrsCount()} </b>')
 
 executor.start_polling(admindp)

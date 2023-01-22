@@ -55,7 +55,7 @@ async def menumsg(id):
 
 Nivel: <b>{dbdata[4]}</b>
 Experiencia: <b>{dbdata[19]} / {await tech.getNearestRank(int(dbdata[3]), lvlList) - await tech.getPreviousRank(int(dbdata[3]), lvlList)} </b>
-Rango: <b> {f"Iron🦾️</b> ({15-int(dbdata[4])} {data['txt']['tillNextRank']})" if int(dbdata[2]) == 1 else f"Bronze🥉</b> ({50-int(dbdata[4])} {data['txt']['tillNextRank']})" if int(dbdata[2]) == 2 else f"Silver🥈</b> ({15-int(dbdata[4])} {data['txt']['tillNextRank']})" if int(dbdata[2]) == 3 else "Gold🏅</b>"}
+Rango: <b> {f"Iron🦾️</b> ({15-int(dbdata[4])} {data['txt']['tillNextRank']})" if int(dbdata[2]) == 1 else f"Bronze🥉</b> ({50-int(dbdata[4])} {data['txt']['tillNextRank']})" if int(dbdata[2]) == 2 else f"Silver🥈</b> ({100-int(dbdata[4])} {data['txt']['tillNextRank']})" if int(dbdata[2]) == 3 else "Gold🏅</b>"}
 
 Saldo: <b>{round(dbdata[6], 3)} USD</b> 
 Tareas restantes:  <b>{dbdata[8]}</b>

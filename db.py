@@ -400,3 +400,10 @@ async def markWRasPayed(reqNum):
     cursor = db.cursor()
     cursor.execute(f"UPDATE withdrawReqs SET isPayed = 1 WHERE reqNum = {reqNum}")
     db.commit()
+    
+async def getAllUsrsCount():
+    db = sqlite3.connect('proj.db')
+    cursor = db.cursor()
+    cursor.execute(f"SELECT id FROM users")
+    row = cursor.fetchall()
+    return len(row)
