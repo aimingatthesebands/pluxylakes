@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import random
-
 import db
 import keyboards as kb
 import aiogram.utils.exceptions
@@ -39,6 +38,8 @@ async def mainMenu():
 использование: <b> /wdr номер заявки</b> 
 
 /wdrlist - spisok zayavok
+
+/stats - количество юзеров
 
 <b> Сюда будут приходить все заявки на пополнение/вывод </b>
     """
@@ -170,7 +171,7 @@ async def closeMsg(call: types.CallbackQuery, state: FSMContext):
         cid = call.message.chat.id
         await call.bot.delete_message(cid, call.message.message_id)
     except: pass
-    
+
 @admindp.message_handler(commands=['stats'])
 async def cmdstat(msg: types.Message):
     await msg.bot.send_message(msg.chat.id, text=f'Количество юзеров: <b> {await db.getAllUsrsCount()} </b>')

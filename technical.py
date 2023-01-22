@@ -13,6 +13,7 @@ data.read("setting.ini", encoding='utf-8')
 adminBot = Bot(token=data['bot']['admintoken'], parse_mode=types.ParseMode.HTML)
 mainBot = Bot(token=data['bot']['token'], parse_mode=types.ParseMode.HTML)
 
+
 class AsyncIter:
     def __init__(self, items):
         self.items = items
@@ -83,6 +84,7 @@ async def replenishNotification(id, sum):
         await mainBot.send_message(chat_id=id, reply_markup=kb.justMainMenu(), disable_notification=False, text=data['txt']['balanceReplenished'].format(sum))
     except aiogram.utils.exceptions.BotBlocked:
         pass
+
 
 async def adminWithdrawNotification(id, num, sum, wallet, type, coin, date):
     admins = await db.getAllAdmins()

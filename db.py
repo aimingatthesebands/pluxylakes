@@ -48,7 +48,7 @@ async def checkRank(id):
 async def taskCompletedHandler(id, expForJob, completedJobPayout, jobDailyLimit, jobCompletedToday, jobAvailableTotal, completedJobBonus):
     db = sqlite3.connect('proj.db')
     cursor = db.cursor()
-    if jobCompletedToday != jobDailyLimit:
+    if jobCompletedToday < jobDailyLimit:
         if jobAvailableTotal != 0:
             cursor.execute(f"UPDATE users SET walletBalance = walletBalance + {round(float(completedJobPayout), 3)} WHERE id = {id}")
             db.commit()
@@ -400,7 +400,7 @@ async def markWRasPayed(reqNum):
     cursor = db.cursor()
     cursor.execute(f"UPDATE withdrawReqs SET isPayed = 1 WHERE reqNum = {reqNum}")
     db.commit()
-    
+
 async def getAllUsrsCount():
     db = sqlite3.connect('proj.db')
     cursor = db.cursor()
