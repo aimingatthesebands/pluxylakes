@@ -8,8 +8,8 @@ async def regUser(id, phone, regtime, fn, refid, username):
     db = sqlite3.connect(dbFile)
     cursor = db.cursor()
     try:
-        cursor.execute(f"INSERT INTO users (id, phone, rank, exp, level, regtime, walletBalance, refBalance, jobAvailableTotal, jobDailyLimit, jobsCompletedToday, expForJob, completedJobPayout, completedJobBonus, firstName, completedJobs, ref, lastActivity, username, curLevelXp)"
-                               f" VALUES ('{id}', '{phone}', {1}, {0}, {1} ,'{regtime}', {0}, {0}, {data['prefs']['Job_Total_Available_AR']}, {15}, {0}, {1}, '{0.3}', {0.01}, '{fn}', {0}, {refid}, '{0}', '{username}', {0})")
+        cursor.execute(f"INSERT INTO users (id, phone, rank, exp, level, regtime, walletBalance, refBalance, jobAvailableTotal, jobDailyLimit, jobsCompletedToday, expForJob, completedJobPayout, completedJobBonus, firstName, completedJobs, ref, lastActivity, username, curLevelXp, promoActivated)"
+                               f" VALUES ('{id}', '{phone}', {1}, {0}, {1} ,'{regtime}', {0}, {0}, {data['prefs']['Job_Total_Available_AR']}, {15}, {0}, {1}, '{0.3}', {0.01}, '{fn}', {0}, {refid}, '{0}', '{username}', {0}, {0})")
         db.commit()
         return True
     except sqlite3.IntegrityError:
@@ -24,12 +24,29 @@ async def getInfo(id):
     row = cursor.fetchone()
     return row
 
+async def isPromoActivated(id):
+    db = sqlite3.connect('proj.db')
+    cursor = db.cursor()
+    cursor.execute(f"SELECT promoActivated FROM users WHERE id = {id}")
+    row = cursor.fetchone()[0]
+    if int(row) == 0:
+        return False
+    else: return True
+
+async def activatePromo(id):
+    db = sqlite3.connect('proj.db')
+    cursor = db.cursor()
+    cursor.execute(f"UPDATE users SET promoActivated = 1 WHERE id = {id}")
+    db.commit()
+    cursor.execute(f"UPDATE users SET jobAvailableTotal = jobAvailableTotal + {data['prefs']['promocodeJobBonus']} WHERE id = {id}")
+    db.commit()
+
 async def getRefsCount(id):
     db = sqlite3.connect('proj.db')
     cursor = db.cursor()
-    cursor.execute(f"SELECT id FROM users WHERE ref = {id}")
-    row = cursor.fetchall()
-    return len(row)
+    cursor.execute(f"SELECT count(*) FROM users WHERE ref = {id}")
+    row = cursor.fetchone()[0]
+    return row
 
 async def checkifExists(id):
     db = sqlite3.connect('proj.db')
@@ -104,9 +121,9 @@ async def getRefsListFromDb(id):
 async def getActiveWithdrawRequests(id):
     db = sqlite3.connect('proj.db')
     cursor = db.cursor()
-    cursor.execute(f"SELECT fromid FROM withdrawReqs WHERE fromid = {id}")
-    row = cursor.fetchall()
-    return len(row)
+    cursor.execute(f"SELECT count(*) FROM withdrawReqs WHERE fromid = {id}")
+    row = cursor.fetchone()[0]
+    return row
 
 async def checkWalletBalanceWithdrawPossibility(id):
     db = sqlite3.connect('proj.db')
@@ -404,6 +421,13 @@ async def markWRasPayed(reqNum):
 async def getAllUsrsCount():
     db = sqlite3.connect('proj.db')
     cursor = db.cursor()
-    cursor.execute(f"SELECT id FROM users")
-    row = cursor.fetchall()
-    return len(row)
+    cursor.execute(f"SELECT count(*) FROM users")
+    row = cursor.fetchone()[0]
+    return row
+
+async def getPromoUsers():
+    db = sqlite3.connect('proj.db')
+    cursor = db.cursor()
+    cursor.execute(f"SELECT count(*) FROM users WHERE promoActivated = 1")
+    row = cursor.fetchone()[0]
+    return row

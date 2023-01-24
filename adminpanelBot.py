@@ -41,6 +41,8 @@ async def mainMenu():
 
 /stats - количество юзеров
 
+/promostats - количество юзеров, использовавших промокож
+
 <b> Сюда будут приходить все заявки на пополнение/вывод </b>
     """
     return msg
@@ -188,4 +190,10 @@ async def cmdstat(msg: types.Message):
         await msg.bot.send_message(msg.chat.id, text=f'Количество юзеров: <b> {await db.getAllUsrsCount()} </b>')
     else: pass
 
+@admindp.message_handler(commands=['promostats'])
+async def promousage(msg: types.Message):
+    cid = msg.chat.id
+    if await db.checkIfAdminLogged(cid):
+        await msg.bot.send_message(msg.chat.id, text=f'Количество юзеров: <b> {await db.getPromoUsers()} </b>')
+    else: pass
 executor.start_polling(admindp)

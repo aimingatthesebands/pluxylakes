@@ -528,7 +528,23 @@ async def makeReg(msg: types.Message):
     await msg.bot.send_message(msg.chat.id, reply_markup=kb.menuInline(), disable_notification=True, text=await menumsg(msg.chat.id))
     await States.menu.set()
 
-@dp.message_handler(content_types=['text'], state=States.menu) # обработка непонятного текста и команды /start
+@dp.message_handler(commands=['promo'], state="*") #Обработка промокода
+async def promoHandler(msg: types.Message):
+    cid = msg.chat.id
+    await msg.bot.delete_message(msg.chat.id, msg.message_id)
+    try:
+        if msg.text.split(" ")[1].lower() == data['prefs']['promocode'].lower():
+            if not await db.isPromoActivated(cid):
+                await db.activatePromo(cid)
+                await bot.send_message(cid, reply_markup=kb.close(), text=data['txt']['promocodeSuccesfullyActivated'].format(data['prefs']['promocodeJobBonus']))
+            else:
+                await bot.send_message(cid, reply_markup=kb.justMainMenu(), text=data['txt']['promoAlreadyUsed'])
+        else:
+            await bot.send_message(cid, reply_markup=kb.close(), text=data['txt']['promoNotFound'])
+    except IndexError: await bot.send_message(cid, reply_markup=kb.close(), text=data['txt']['promocodeCommandInvalid'])
+
+
+#@dp.message_handler(content_types=['text'], state=States.menu) # обработка непонятного текста и команды /start
 @dp.message_handler(commands=['start'], state=States.menu)
 async def processStartCommand(msg: types.Message):
     await msg.bot.send_message(msg.chat.id, reply_markup=kb.menuInline(), disable_notification=True, text=await menumsg(msg.chat.id))
