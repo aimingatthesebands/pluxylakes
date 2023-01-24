@@ -502,18 +502,18 @@ async def processNewStartCommand(msg: types.Message):
     if await db.checkifExists(msg.chat.id) == 0: #esli NE zaregan
         if len(msg.text.split(" ")) == 2: # esli est' Ref priglasivhiy
             ref = msg.text.split(" ")[1]
-            await db.regUser(msg.chat.id, "inProcess", str(datetime.datetime.now()).split(".")[0], msg.from_user.first_name, ref, msg.from_user.username)
+            await db.regUser(msg.chat.id, "inProcess", str(datetime.datetime.now()).split(".")[0], await tech.antixss(msg.from_user.first_name), ref, msg.from_user.username)
             await msg.bot.send_message(ref, reply_markup=kb.onNewRefNotification(), disable_notification=True, text=f"{data['txt']['newRefNotification']} <code> {'@' + msg.from_user.username if msg.from_user.username is not None else msg.chat.id} </code>")
         else: #rega bez priglosa
             await db.regUser(msg.chat.id, "inProcess", str(datetime.datetime.now()).split(".")[0],
-                             msg.from_user.first_name, 0, msg.from_user.username)
+                             await tech.antixss(msg.from_user.first_name), 0, msg.from_user.username)
         await msg.bot.send_message(msg.chat.id, reply_markup=kb.requestContact(), disable_notification=True,
-                               text=await afterStart(msg.from_user.first_name, msg.from_user.last_name))
+                               text=await afterStart(await tech.antixss(msg.from_user.first_name), msg.from_user.last_name))
         await States.awaitingContact.set()
     else: #esli zaregan
         if await db.checkPhone(msg.chat.id) == "inProcess":
             await msg.bot.send_message(msg.chat.id, reply_markup=kb.requestContact(), disable_notification=True,
-                                       text=await afterStart(msg.from_user.first_name, msg.from_user.last_name))
+                                       text=await afterStart( await tech.antixss(msg.from_user.first_name), msg.from_user.last_name))
             await States.awaitingContact.set()
         else:
             await msg.bot.send_message(msg.chat.id, reply_markup=kb.menuInline(), disable_notification=True,
