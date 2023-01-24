@@ -9,7 +9,7 @@ async def regUser(id, phone, regtime, fn, refid, username):
     cursor = db.cursor()
     try:
         cursor.execute(f"INSERT INTO users (id, phone, rank, exp, level, regtime, walletBalance, refBalance, jobAvailableTotal, jobDailyLimit, jobsCompletedToday, expForJob, completedJobPayout, completedJobBonus, firstName, completedJobs, ref, lastActivity, username, curLevelXp)"
-                               f" VALUES ('{id}', '{phone}', {1}, {0}, {1} ,'{regtime}', {0}, {0}, {60}, {15}, {0}, {1}, '{0.3}', {0.01}, '{fn}', {0}, {refid}, '{0}', '{username}', {0})")
+                               f" VALUES ('{id}', '{phone}', {1}, {0}, {1} ,'{regtime}', {0}, {0}, {data['prefs']['Job_Total_Available_AR']}, {15}, {0}, {1}, '{0.3}', {0.01}, '{fn}', {0}, {refid}, '{0}', '{username}', {0})")
         db.commit()
         return True
     except sqlite3.IntegrityError:
