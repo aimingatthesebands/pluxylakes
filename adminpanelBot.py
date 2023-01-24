@@ -51,11 +51,11 @@ async def getAllWRRequestInText(reqsRaw):
         msgText = msgText + f"-----------------" \
                             f"\nID: <b> {reqsRaw[i][1]} </b>\n\n" \
                             f"создана: {f'@{username}' if username != 'noUsername' else reqsRaw[i][0]}\n" \
-                            f"{data['txt']['walletToWithdraw']}:    <b>{reqsRaw[i][3]}</b>\n" \
-                            f"{data['txt']['paymentSum']}:    <b>{round(float(reqsRaw[i][2]))}</b>\n" \
-                            f"{data['txt']['paymentWalletType']}:    <b>{data['txt']['walletBalance'] if reqsRaw[i][4] == 'WalletBalanceDraw' else data['txt']['refBalance']}</b>\n" \
-                            f"{data['txt']['paymentCurrency']}:    <b>{data['vendors'][reqsRaw[i][5]]}</b>\n" \
-                            f"{data['txt']['paymentDate']}:    <b>{reqsRaw[i][6]}</b>\n" \
+                            f"Кош для вывода:    <b>{reqsRaw[i][3]}</b>\n" \
+                            f"Сумма:    <b>{round(float(reqsRaw[i][2]))}</b>\n" \
+                            f"Тип баланса:    <b>{data['txt']['walletBalance'] if reqsRaw[i][4] == 'WalletBalanceDraw' else data['txt']['refBalance']}</b>\n" \
+                            f"Монета:    <b>{data['vendors'][reqsRaw[i][5]]}</b>\n" \
+                            f"Дата:    <b>{reqsRaw[i][6]}</b>\n" \
                             f"{data['txt']['isPayed']}:    {'🟩' if int(reqsRaw[i][7]) == 1 else '🟥'}\n" \
                             f"-----------------\n\n"
     return msgText
