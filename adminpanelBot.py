@@ -132,38 +132,44 @@ async def rep(msg: types.Message):
 
 @admindp.message_handler(commands=['wdr'], state="*")
 async def wdr(msg: types.Message):
-    reqNum = msg.text.split(" ")[1]
-    response = await db.getWithdrawRequestByNumber(reqNum)
-    if response:
-        await tech.withdrawNotify(response[0], response[1])
-        await db.markWRasPayed(reqNum)
-        await msg.bot.send_message(msg.chat.id, "+")
-        await db.markWRasPayed(reqNum)
-    else:
-        await msg.bot.send_message(msg.chat.id, text="zayavka ne naidena")
+    if await db.checkIfAdminLogged(cid):
+        reqNum = msg.text.split(" ")[1]
+        response = await db.getWithdrawRequestByNumber(reqNum)
+        if response:
+            await tech.withdrawNotify(response[0], response[1])
+            await db.markWRasPayed(reqNum)
+            await msg.bot.send_message(msg.chat.id, "+")
+            await db.markWRasPayed(reqNum)
+        else:
+            await msg.bot.send_message(msg.chat.id, text="zayavka ne naidena")
+    else: pass
 
 @admindp.message_handler(commands=['wdrlist'])
 async def admgetreqs(msg: types.Message):
-    reqsRawFull = await db.getAllWithdrawRequests()
-    reqsRawLast =   await db.getLast10WithdrawRequests()
-    txt = await getAllWRRequestInText(reqsRawLast)
-    filehash = random.randint(100000, 99999999)
-    columns = ['from ID', 'Request Number', 'Summa', 'Wallet', 'Balance type', 'Coin', 'Date', 'is Payed?']
-    await msg.bot.send_message(msg.chat.id, reply_markup=kb.close(), text=txt)
-    await tech.compileCSV(rndhash=filehash, columns=columns, reqsRaw=reqsRawFull)
-    try:
-        await msg.bot.send_document(chat_id=msg.chat.id, document=open(f'{filehash}.csv', 'rb'))
-        path = os.getcwd()
-        os.remove(f'{path}/{filehash}.csv')
-    except FileNotFoundError:
-        pass
+    if await db.checkIfAdminLogged(cid):
+        reqsRawFull = await db.getAllWithdrawRequests()
+        reqsRawLast =   await db.getLast10WithdrawRequests()
+        txt = await getAllWRRequestInText(reqsRawLast)
+        filehash = random.randint(100000, 99999999)
+        columns = ['from ID', 'Request Number', 'Summa', 'Wallet', 'Balance type', 'Coin', 'Date', 'is Payed?']
+        await msg.bot.send_message(msg.chat.id, reply_markup=kb.close(), text=txt)
+        await tech.compileCSV(rndhash=filehash, columns=columns, reqsRaw=reqsRawFull)
+        try:
+            await msg.bot.send_document(chat_id=msg.chat.id, document=open(f'{filehash}.csv', 'rb'))
+            path = os.getcwd()
+            os.remove(f'{path}/{filehash}.csv')
+        except FileNotFoundError:
+            pass
+    else: pass
 
 
 @admindp.callback_query_handler(text=['admin_open_reqslist'])
 async def admgetreqs(call: types.CallbackQuery):
-    reqsRaw = await db.getAllWithdrawRequests()
-    txt = await getAllWRRequestInText(reqsRaw)
-    await call.bot.send_message(call.message.chat.id, reply_markup=kb.close(), text=txt)
+    if await db.checkIfAdminLogged(cid):
+        reqsRaw = await db.getAllWithdrawRequests()
+        txt = await getAllWRRequestInText(reqsRaw)
+        await call.bot.send_message(call.message.chat.id, reply_markup=kb.close(), text=txt)
+    else: pass
 
 @admindp.callback_query_handler(text=["close"], state="*")
 async def closeMsg(call: types.CallbackQuery, state: FSMContext):
@@ -174,6 +180,8 @@ async def closeMsg(call: types.CallbackQuery, state: FSMContext):
 
 @admindp.message_handler(commands=['stats'])
 async def cmdstat(msg: types.Message):
-    await msg.bot.send_message(msg.chat.id, text=f'Количество юзеров: <b> {await db.getAllUsrsCount()} </b>')
+    if await db.checkIfAdminLogged(cid):
+        await msg.bot.send_message(msg.chat.id, text=f'Количество юзеров: <b> {await db.getAllUsrsCount()} </b>')
+    else: pass
 
 executor.start_polling(admindp)
