@@ -737,22 +737,24 @@ async def withdrawFourthStage(call: types.CallbackQuery, state: FSMContext):
         if await db.checkWalletBalanceWithdrawPossibility(cid):
             await asyncio.sleep(1.5)
             method = await state.get_state()
-            await call.bot.edit_message_text(chat_id=cid, message_id=msgToEdit.message_id,
+            msgToDelete = await call.bot.edit_message_text(chat_id=cid, message_id=msgToEdit.message_id,
                                              text=await withdrawStage4(method))
+            await state.update_data(msid=msgToDelete.message_id)
             await state.set_state(f"{method}.approved")
         else:
             await call.bot.edit_message_text(chat_id=cid, reply_markup=kb.justMainMenu(), message_id=msgToEdit.message_id,
-                                             text=data['txt']['walBalLessThenMinimalWithdraw'])
+                                             text=f"{data['txt']['walBalLessThenMinimalWithdraw'].format(data['prefs']['minWithdrawSum'])}")
     elif call.data == "ref_bal_withdraw":
         if await db.checkRefBalanceWithdrawPossibility(cid):
             await asyncio.sleep(1.5)
             method = await state.get_state()
-            await call.bot.edit_message_text(chat_id=cid, message_id=msgToEdit.message_id,
+            msgToDelete = await call.bot.edit_message_text(chat_id=cid, message_id=msgToEdit.message_id,
                                              text=await withdrawStage4(method))
+            await state.update_data(msid=msgToDelete.message_id)
             await state.set_state(f"{method}.approvedRef")
         else:
             await call.bot.edit_message_text(chat_id=cid, reply_markup=kb.justMainMenu(), message_id=msgToEdit.message_id,
-                                             text=data['txt']['refBalLessThenMinimalWithdraw'])
+                                             text=f"{data['txt']['refBalLessThenMinimalWithdraw'].format(data['prefs']['minWithdrawSum'])}")
 
 #Предпоследний шаг, ждем кошелька от юзера
 @dp.message_handler(content_types=['text'], state=["usdt_trc.approved", "usdt_erc.approved", "btc.approved", "eth.approved",
@@ -761,15 +763,20 @@ async def withdrawDetailsInputStage(msg: types.Message, state: FSMContext):
     cid = msg.chat.id
     method = await state.get_state()
     await state.set_state(f"{method}.{msg.text}")
+    msid = await state.get_data()
+    msid = msid['msid']
     methodAndVendor = await state.get_state()
     methodAndVendor = await tech.antixss(methodAndVendor)
     if methodAndVendor.split(".")[1] == "approved":
+        await msg.bot.delete_message(cid, msid)
         await msg.bot.delete_message(cid, msg.message_id)
         await msg.bot.send_message(cid, reply_markup=kb.approveWithdrawRequestCreation(), disable_notification=True,
                                                text=await withdrawPreFinale(ref=0, sum=await db.getBalance(cid, 0),
                                                                             vendorstring=methodAndVendor))
         await state.set_state(f"{methodAndVendor}")
     elif methodAndVendor.split(".")[1] == "approvedRef":
+        await msg.bot.delete_message(cid, msid)
+        await msg.bot.delete_message(cid, msg.message_id)
         await msg.bot.send_message(cid, reply_markup=kb.approveWithdrawRequestCreation(), disable_notification=True,
                                                text=await withdrawPreFinale(ref=1, sum=await db.getBalance(cid, 1),
                                                                             vendorstring=methodAndVendor))
@@ -900,17 +907,20 @@ async def replenishVendorChoose(call: types.CallbackQuery, state: FSMContext):
     cid = call.message.chat.id
     vendorStr = call.data.split("REPL")
     await call.bot.delete_message(cid, call.message.message_id)
-    await bot.send_message(cid, disable_notification=True, text=await replenishSumInput(cid, vendorStr))
+    msid = await bot.send_message(cid, disable_notification=True, text=await replenishSumInput(cid, vendorStr))
     await States.replenishSumInputAwaiting.set()
-    await state.update_data(vendor=vendorStr[1])
+    await state.update_data(vendor=vendorStr[1], msid=msid.message_id)
 
 @dp.message_handler(content_types=['text'], state=[States.replenishSumInputAwaiting])
 async def replenishSecondStage(msg: types.Message, state: FSMContext):
-    vendor = await state.get_data()
-    vendor = vendor['vendor']
+    stateData = await state.get_data()
+    vendor = stateData['vendor']
+    msid = stateData['msid']
     if msg.text.isdigit():
         if int(msg.text) >= int(data['prefs']['minReplenishSum']):
             paySum = int(msg.text)
+            await msg.bot.delete_message(msg.chat.id, msid)
+            await msg.bot.delete_message(msg.chat.id, msg.message_id)
             await msg.bot.send_message(msg.chat.id, disable_notification=True,
                                        reply_markup=await kb.webappReplenish(id=paySum*913, amountUSD=paySum,
                                         amountCurrency=f"{await tech.convertUSDToCurrency(coin=vendor, amount=paySum, ratesLink=data['bot']['ratesLink'])}",
@@ -920,8 +930,11 @@ async def replenishSecondStage(msg: types.Message, state: FSMContext):
                                             vendor=f"{data['txt']['USDTTRC'] if vendor == 'usdttrc' else data['txt']['USDTERC'] if vendor == 'usdterc' else data['txt']['BTC'] if vendor == 'btc' else data['txt']['ETH'] if vendor == 'eth' else f'Vendor: {vendor}'}",
                                             dt=str(datetime.datetime.now()).split(".")[0])
         else:
-            await msg.bot.send_message(msg.chat.id, reply_markup=kb.justMainMenu(), disable_notification=True, text=f"{data['txt']['lowerThanMinReplenishSum']} <b> {data['prefs']['minReplenishSum']} USD </b>")
+            await msg.bot.delete_message(msg.chat.id, msid)
+            await msg.bot.delete_message(msg.chat.id, msg.message_id)
+            await msg.bot.send_message(msg.chat.id, reply_markup=kb.justMainMenu(), disable_notification=True, text=f"{data['txt']['lowerThanMinReplenishSum']} <b> {data['prefs']['minReplenishSum']}$ </b>")
             await States.replenishSumInputAwaiting.set()
+
 
 @dp.callback_query_handler(text=['buy_more_tasks', 'choose_another_pack'], state=[States.menu, States.packTaskChosen])
 async def buyNewTasksStepFirst(call: types.CallbackQuery):
