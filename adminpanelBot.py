@@ -132,6 +132,7 @@ async def rep(msg: types.Message):
 
 @admindp.message_handler(commands=['wdr'], state="*")
 async def wdr(msg: types.Message):
+    cid = msg.chat.id
     if await db.checkIfAdminLogged(cid):
         reqNum = msg.text.split(" ")[1]
         response = await db.getWithdrawRequestByNumber(reqNum)
@@ -146,6 +147,7 @@ async def wdr(msg: types.Message):
 
 @admindp.message_handler(commands=['wdrlist'])
 async def admgetreqs(msg: types.Message):
+    cid = msg.chat.id
     if await db.checkIfAdminLogged(cid):
         reqsRawFull = await db.getAllWithdrawRequests()
         reqsRawLast =   await db.getLast10WithdrawRequests()
@@ -165,6 +167,7 @@ async def admgetreqs(msg: types.Message):
 
 @admindp.callback_query_handler(text=['admin_open_reqslist'])
 async def admgetreqs(call: types.CallbackQuery):
+    cid = call.message.chat.id
     if await db.checkIfAdminLogged(cid):
         reqsRaw = await db.getAllWithdrawRequests()
         txt = await getAllWRRequestInText(reqsRaw)
@@ -180,6 +183,7 @@ async def closeMsg(call: types.CallbackQuery, state: FSMContext):
 
 @admindp.message_handler(commands=['stats'])
 async def cmdstat(msg: types.Message):
+    cid = msg.chat.id
     if await db.checkIfAdminLogged(cid):
         await msg.bot.send_message(msg.chat.id, text=f'Количество юзеров: <b> {await db.getAllUsrsCount()} </b>')
     else: pass
