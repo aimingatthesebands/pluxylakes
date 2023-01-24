@@ -51,7 +51,7 @@ async def menumsg(id):
     dbdata = await db.getInfo(id)
     refcount = await db.getRefsCount(id)
     WelcomeMessage = f"""
-🧞‍♂ Hola,  <b>{dbdata[14]}</b> 🫡
+🧞‍♂ Hola,  <b>{dbdata[14]}</b> 👋
 
 Nivel: <b>{dbdata[4]}</b>
 Experiencia: <b>{dbdata[19]} / {await tech.getNearestRank(int(dbdata[3]), lvlList) - await tech.getPreviousRank(int(dbdata[3]), lvlList)} </b>
@@ -285,7 +285,7 @@ Saldo de referencia: <b> {data[7]} USD </b>
 
 Monto mínimo de retiro: <b> 50 USD </b>
 
-❗Ingrese el monto del retiro y el saldo del que desea retirar dinero.
+❗Seleccione el saldo del que desea retirar dinero.
     """
     return msg
 async def checkingWithdrawRequest():
@@ -445,12 +445,12 @@ Aquí puedes comprar tareas adicionales. Para la compra, puede usar dinero de lo
 
 No vendemos asignaciones individualmente, vendemos asignaciones en lotes.
 🎟
-<b>Pack {data['packs']['pack1'].split("|")[0]} заданий </b> | Precio: {data['packs']['pack1'].split("|")[1]}
-<b>Pack {data['packs']['pack2'].split("|")[0]} заданий </b> | Precio: {data['packs']['pack2'].split("|")[1]}
-<b>Pack {data['packs']['pack3'].split("|")[0]} заданий </b> | Precio: {data['packs']['pack3'].split("|")[1]}
-<b>Pack {data['packs']['pack4'].split("|")[0]} заданий </b> | Precio: {data['packs']['pack4'].split("|")[1]}
-<b>Pack {data['packs']['pack5'].split("|")[0]} заданий </b> | Precio: {data['packs']['pack5'].split("|")[1]}
-<b>Pack {data['packs']['pack6'].split("|")[0]} заданий </b> | Precio: {data['packs']['pack6'].split("|")[1]}
+<b>Pack {data['packs']['pack1'].split("|")[0]} tareas </b> | Precio: {data['packs']['pack1'].split("|")[1]}
+<b>Pack {data['packs']['pack2'].split("|")[0]} tareas </b> | Precio: {data['packs']['pack2'].split("|")[1]}
+<b>Pack {data['packs']['pack3'].split("|")[0]} tareas </b> | Precio: {data['packs']['pack3'].split("|")[1]}
+<b>Pack {data['packs']['pack4'].split("|")[0]} tareas </b> | Precio: {data['packs']['pack4'].split("|")[1]}
+<b>Pack {data['packs']['pack5'].split("|")[0]} tareas </b> | Precio: {data['packs']['pack5'].split("|")[1]}
+<b>Pack {data['packs']['pack6'].split("|")[0]} tareas </b> | Precio: {data['packs']['pack6'].split("|")[1]}
 
 
 Elige el paquete que necesitas y págalo del saldo.
@@ -945,6 +945,12 @@ async def buyPack(call: types.CallbackQuery, state: FSMContext):
             await bot.edit_message_text(chat_id=cid, message_id=msgToEdit.message_id, reply_markup=kb.packBuyDenied(),
                                         text=data['txt']['packBuyWalBalDenied'])
 
+
+@dp.callback_query_handler(text=['replenish_manual'], state=States.replenishStage1)
+async def openReplenishManual(call: types.CallbackQuery):
+    cid = call.message.chat.id
+    await call.bot.delete_message(cid, call.message.message_id)
+    await call.bot.send_message(cid, disable_notification=True, reply_markup=kb.packBuyDenied(), text=data['txt']['replenishManual'])
 
 if __name__ == '__main__':
     executor.start_polling(dp)
