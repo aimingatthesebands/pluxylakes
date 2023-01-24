@@ -4,6 +4,8 @@ from threading import Thread
 import configparser
 import db
 
+print("-------------------------------\n\n daytimehandler \n\n ---------------------------")
+
 data = configparser.ConfigParser()
 data.read("setting.ini", encoding='utf-8')
 
@@ -14,6 +16,7 @@ def is00AM():
         curHour, curMinute = int(datetime.now().hour), int(datetime.now().minute)
         if curHour == limitResetHour and curMinute == limitResetMinute:
             db.resetDayLimit()
+            print(f'{datetime.now()} dailylimit reset')
             time.sleep(72000)
         else:
             time.sleep(30)

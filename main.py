@@ -17,7 +17,7 @@ import datetime
 import db
 import technical as tech
 
-print(f"==================================\n\n {db.getInfo(1604009857)} \n\n ======================================")
+print(f"==================================\n\n MAIN MODULE \n\n ======================================")
 
 data = configparser.ConfigParser()
 data.read("setting.ini", encoding='utf-8')
@@ -240,7 +240,7 @@ Solicitudes de retiro: <b>{withdrawRequestCountText}/{data['prefs']['maxWithdraw
 ❗️Antes de retirar, lee las condiciones de retiro:
 ✦ El retiro se produce una vez a la semana (de jueves a domingo)
 ✦ Puede crear un máximo <b> {data['prefs']['maxWithdrawRequests']} solicitudes </b>de retiro por semana
-✦ Cantidad mínima de retiro <b> {data['prefs']['minWithdrawSum']} </b>
+✦ Cantidad mínima de retiro <b> {data['prefs']['minWithdrawSum']} USD </b>
 ✦ El retiro de la transmisión y el saldo de referencia se crean por separado
 ✦ La tarifa de retiro es pagada por el destinatario
 ✦ Usted es el único responsable de la exactitud de los datos creados en la solicitud de retiro
@@ -249,7 +249,7 @@ Solicitudes de retiro: <b>{withdrawRequestCountText}/{data['prefs']['maxWithdraw
     return msg
 async def checkingWithdrawRequestsCount():
     msg = f"""
-<b> [[CREANDO UNA SOLICITUD DE RETIRO paso 1 de 4] </b>  
+<b> [CREANDO UNA SOLICITUD DE RETIRO paso 1 de 4] </b>  
 
 Comprobando el número de aplicaciones disponibles esta semana...
 
@@ -373,7 +373,7 @@ Importante. No comparta la contraseña de su cuenta con nadie.
     return msg
 async def supportMenu():
     msg = f"""
-<b> [[APOYO TÉCNICO]] </b>
+<b> [APOYO TÉCNICO]] </b>
 
 Si tiene algún problema o pregunta, siempre puede escribir a nuestro soporte  🦾
 
